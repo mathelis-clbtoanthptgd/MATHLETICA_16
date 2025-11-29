@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="vi">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Covent Garden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&amp;family=Special+Elite&amp;family=Lora:wght@400;600&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Lora', serif;
+      background: linear-gradient(135deg, #8B5A2B 0%, #A0826D 100%);
+      color: #212121;
+      overflow-x: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .app-container {
+      width: 100%;
+      min-height: 100%;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      min-height: 100%;
+      padding: 2% 5%;
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes swing {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shine {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+
+    @keyframes coinFall {
+      0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes confetti {
+      0% {
+        transform: translateY(-100%) rotate(0deg);
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+      }
+    }
+
+    .coin-rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .falling-coin {
+      position: absolute;
+      font-size: 2em;
+      animation: coinFall 3s linear infinite;
+    }
+
+    /* Home Screen */
+    .home-screen {
+      background: linear-gradient(to bottom, rgba(245, 245, 220, 0.95) 0%, rgba(245, 245, 220, 0.98) 100%);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      padding: 4%;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .game-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4em;
+      font-weight: 900;
+      color: #8B5A2B;
+      text-shadow: 3px 3px 0 #D4AF37, 6px 6px 10px rgba(0, 0, 0, 0.3);
+      margin-bottom: 0.3em;
+      letter-spacing: 0.05em;
+      animation: lift 3s ease-in-out infinite;
+    }
+
+    @keyframes lift {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .subtitle {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.3em;
+      color: #C62828;
+      margin-bottom: 2em;
+    }
+
+    .apple-baskets {
+      display: flex;
+      justify-content: center;
+      gap: 3em;
+      margin: 2em 0;
+      flex-wrap: wrap;
+    }
+
+    .basket {
+      position: relative;
+      text-align: center;
+    }
+
+    .apple-emoji {
+      font-size: 5em;
+      display: inline-block;
+      animation: wiggle 3s ease-in-out infinite;
+    }
+
+    .basket:nth-child(2) .apple-emoji {
+      animation-delay: 0.5s;
+    }
+
+    .basket-label {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.2em;
+      color: #212121;
+      margin-top: 0.5em;
+      background: #8B5A2B;
+      color: #F5F5DC;
+      padding: 0.3em 0.8em;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+
+
+    .start-button {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      font-weight: 700;
+      background: #33691E;
+      color: #F5F5DC;
+      border: 5px solid #8B5A2B;
+      padding: 0.7em 2em;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      animation: swing 2s ease-in-out infinite;
+      margin-top: 1em;
+    }
+
+    .start-button:hover {
+      background: #2E7D32;
+      transform: scale(1.05);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Game Screen */
+    .game-screen {
+      background: rgba(245, 245, 220, 0.98);
+      border-radius: 20px;
+      padding: 3%;
+      max-width: 95%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #8B5A2B;
+      color: #F5F5DC;
+      padding: 1em 2em;
+      border-radius: 10px;
+      margin-bottom: 2em;
+      flex-wrap: wrap;
+      gap: 1em;
+    }
+
+    .merchant-name {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.4em;
+    }
+
+    .timer {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.4em;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+
+    .clock-icon {
+      font-size: 1.5em;
+    }
+
+    .puzzle-content {
+      background: white;
+      padding: 2.5em;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2em;
+    }
+
+    .puzzle-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5em;
+      color: #C62828;
+      text-align: center;
+      margin-bottom: 1em;
+      text-transform: uppercase;
+      border-bottom: 3px solid #C62828;
+      padding-bottom: 0.5em;
+    }
+
+    .puzzle-text {
+      font-family: 'Lora', serif;
+      font-size: 1.2em;
+      line-height: 1.8;
+      color: #212121;
+      margin-bottom: 1.5em;
+      text-align: justify;
+    }
+
+    .question-highlight {
+      font-weight: 700;
+      color: #C62828;
+      font-size: 1.3em;
+      display: block;
+      margin-top: 1.5em;
+      text-align: center;
+      padding: 1em;
+      background: #FFF3E0;
+      border-radius: 10px;
+      border-left: 5px solid #C62828;
+    }
+
+    .answer-section {
+      margin-top: 2em;
+    }
+
+    .answer-instruction {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.4em;
+      text-align: center;
+      color: #33691E;
+      margin-bottom: 1.5em;
+    }
+
+    .answer-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2em;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .option-button {
+      background: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 100%);
+      border: 4px solid #8B5A2B;
+      border-radius: 50%;
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .option-button:hover {
+      animation: pop 0.5s ease;
+      transform: scale(1.1);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .coin-icon {
+      font-size: 2.5em;
+      animation: shine 2s ease-in-out infinite;
+    }
+
+    .option-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #8B5A2B;
+      margin-top: 0.3em;
+    }
+
+    .option-label {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.9em;
+      color: #8B5A2B;
+    }
+
+    /* Result Screens */
+    .result-screen {
+      background: rgba(245, 245, 220, 0.98);
+      border-radius: 20px;
+      padding: 4%;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .result-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5em;
+      font-weight: 900;
+      margin-bottom: 0.5em;
+    }
+
+    .result-title.correct {
+      color: #33691E;
+    }
+
+    .result-title.incorrect {
+      color: #C62828;
+    }
+
+    .result-emoji {
+      font-size: 6em;
+      margin: 0.5em 0;
+    }
+
+    .result-message {
+      font-family: 'Lora', serif;
+      font-size: 1.4em;
+      line-height: 1.8;
+      color: #212121;
+      margin: 1.5em 0;
+      padding: 1.5em;
+      background: white;
+      border-radius: 10px;
+    }
+
+    .explanation-box {
+      background: #FFF3E0;
+      border-left: 5px solid #33691E;
+      padding: 1.5em;
+      margin: 1.5em 0;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .explanation-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5em;
+      color: #33691E;
+      margin-bottom: 0.5em;
+    }
+
+    .explanation-text {
+      font-family: 'Lora', serif;
+      font-size: 1.1em;
+      line-height: 1.7;
+      color: #212121;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1.5em;
+      justify-content: center;
+      margin-top: 2em;
+      flex-wrap: wrap;
+    }
+
+    .action-button {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3em;
+      font-weight: 700;
+      padding: 0.8em 2em;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 3px solid #8B5A2B;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-button.primary {
+      background: #33691E;
+      color: #F5F5DC;
+    }
+
+    .action-button.secondary {
+      background: #C62828;
+      color: #F5F5DC;
+    }
+
+    .action-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .game-title {
+        font-size: 2.5em;
+      }
+
+      .subtitle {
+        font-size: 1em;
+      }
+
+      .apple-emoji {
+        font-size: 3.5em;
+      }
+
+      .start-button {
+        font-size: 1.4em;
+      }
+
+      .puzzle-title {
+        font-size: 1.8em;
+      }
+
+      .puzzle-text {
+        font-size: 1em;
+      }
+
+      .answer-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1em;
+      }
+
+      .result-title {
+        font-size: 2.5em;
+      }
+
+      .result-emoji {
+        font-size: 4em;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container"><!-- Screen 1: Home -->
+   <div id="homeScreen" class="screen active">
+    <div class="home-screen">
+     <h1 class="game-title" id="gameTitle">THE COVENT GARDEN</h1>
+     <p class="subtitle" id="subtitle">Mathletica: Đố vui không thưởng #16</p>
+     <div class="apple-baskets">
+      <div class="basket">
+       <div class="apple-emoji">
+        🍎🧺🍎
+       </div>
+       <div class="basket-label">
+        Mrs. Smith
+       </div>
+      </div>
+      <div class="basket">
+       <div class="apple-emoji">
+        🍎🧺🍎
+       </div>
+       <div class="basket-label">
+        Mrs. Jones
+       </div>
+      </div>
+     </div>
+     <div class="name-input-area"><label for="merchantInput" class="name-label">Tên thương nhân:</label>
+ <input type="text" id="merchantInput" placeholder="Nhập tên của bạn..." style="font-family: 'Lora', serif; font-size: 1.2em; padding: 0.8em; border: 3px solid #8B5A2B; border-radius: 10px; text-align: center; width: 100%; max-width: 400px; margin-top: 1em;">
+     </div><button class="start-button" id="startButton" onclick="startGame()">MỞ SẠP HÀNG</button>
+    </div>
+   </div><!-- Screen 2: Game -->
+   <div id="gameScreen" class="screen">
+    <div class="game-screen">
+     <div class="game-header">
+      <div class="merchant-name" id="merchantDisplay"><span id="merchantLabel">Thương nhân:</span> <span id="merchantName">Bạn</span>
+      </div>
+      <div class="timer"><span class="clock-icon">🕰️</span> <span id="timerDisplay">00:00</span>
+      </div>
+     </div>
+     <div class="puzzle-content">
+      <h2 class="puzzle-title" id="questionTitle">VỤ RẮC RỐI TÀI CHÍNH</h2>
+      <div class="puzzle-text">
+       Dưới đây là một câu đố được gọi là "Bài toán Covent Garden", từng xuất hiện ở London nửa thế kỷ trước, đi kèm với một lời khẳng định khá bất ngờ rằng nó đã từng làm khó những nhà toán học giỏi nhất nước Anh: <br><br>
+        Bà Smith và bà Jones có số lượng táo bằng nhau, nhưng táo của bà Jones to hơn và bà bán với gi   hai quả một xu, trong khi bà Smith bán ba quả một xu. <br><br>
+        Vì một lý do nào đó, bà Smith phải đi vắng và nhờ bà Jones bán giúp số hàng của mình. Nhận trách nhiệm bán hàng cho bạn, bà Jones trộn chung táo của cả hai lại và bán với giá năm quả hai xu. <br><br>
+        Khi bà Smith quay lại vào ngày hôm sau, tất cả táo đã được bán hết, nhưng khi chia tiền, họ phát hiện ra bị hụt mất đúng 7 xu. Chính khoản hụt này trong thị trường táo (hay tài chính) đã làm xáo trộn sự cân bằng toán học trong một thời gian dài. <br><br>
+        Giả sử rằng họ chia đôi số tiền thực tế thu được, mỗi người lấy một nửa, bài toán đặt ra là : Bà Jones đã bị thiệt hại bao nhiêu tiền do sự hợp tác không may này? <span class="question-highlight"> Nếu chia đôi doanh thu thực tế, Bà Jones đã bị lỗ bao nhiêu xu? </span>
+      </div>
+     </div>
+     <div class="answer-section">
+      <p class="answer-instruction">Chọn số tiền lỗ chính xác:</p>
+      <div class="answer-options">
+       <div class="option-button" onclick="checkAnswer('A')">
+        <div class="coin-icon">
+         💰
+        </div>
+        <div class="option-value">
+         7
+        </div>
+        <div class="option-label">
+         Xu
+        </div>
+       </div>
+       <div class="option-button" onclick="checkAnswer('B')">
+        <div class="coin-icon">
+         💰
+        </div>
+        <div class="option-value">
+         3.5
+        </div>
+        <div class="option-label">
+         Xu
+        </div>
+       </div>
+       <div class="option-button" onclick="checkAnswer('C')">
+        <div class="coin-icon">
+         💰
+        </div>
+        <div class="option-value">
+         21
+        </div>
+        <div class="option-label">
+         Xu
+        </div>
+       </div>
+       <div class="option-button" onclick="checkAnswer('D')">
+        <div class="coin-icon">
+         💰
+        </div>
+        <div class="option-value">
+         14
+        </div>
+        <div class="option-label">
+         Xu
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Screen 3: Correct Answer -->
+   <div id="correctScreen" class="screen">
+    <div class="coin-rain" id="coinRain"></div>
+    <div class="result-screen">
+     <h2 class="result-title correct">THẦN ĐỒNG TOÁN HỌC!</h2>
+     <div class="result-emoji">
+      🎉💰👩‍🦰
+     </div>
+     <div style="font-size: 4em; margin: 0.5em 0;">
+      💼💵
+     </div>
+     <p class="result-message">Chính xác! Mỗi người có 210 quả táo.<br>
+       Bà Jones lẽ ra được 105 xu nhưng chỉ nhận 84 xu.<br><strong style="color: #C62828; font-size: 1.3em;">Lỗ 21 xu!</strong></p>
+     <div class="explanation-box">
+      <h3 class="explanation-title">Giải Thích Chi Tiết:</h3>
+      <div class="explanation-text"><strong>Giả sử mỗi người có 210 quả táo:</strong> <br><br><strong>Khi bán riêng:</strong> <br>
+       • Bà Smith (3 quả/xu): 210 ÷ 3 = 70 xu <br>
+       • Bà Jones (2 quả/xu): 210 ÷ 2 = 105 xu <br>
+       • Tổng cộng: 175 xu <br><br><strong>Khi bán chung (5 quả/2 xu):</strong> <br>
+       • Tổng 420 quả: (420 ÷ 5) × 2 = 168 xu <br>
+       • Thiếu hụt: 175 - 168 = 7 xu <br><br><strong>Chia đôi doanh thu:</strong> <br>
+       • Mỗi người nhận: 168 ÷ 2 = 84 xu <br>
+       • Bà Smith được 84 xu thay vì 70 xu → Lãi 14 xu ✅ <br>
+       • Bà Jones được 84 xu thay vì 105 xu → Lỗ 21 xu ❌
+      </div>
+     </div>
+     <div style="background: #33691E; color: #F5F5DC; padding: 1em; border-radius: 10px; margin: 1.5em 0; font-family: 'Special Elite', cursive;">
+      <div>
+       ⏱️ Thời gian: <span id="finalTime">00:00</span>
+      </div>
+     </div>
+     <div class="action-buttons"><button class="action-button primary" onclick="restartGame()">Tính Toán Lại</button>
+     </div>
+    </div>
+   </div><!-- Screen 4: Incorrect Answer -->
+   <div id="incorrectScreen" class="screen">
+    <div class="result-screen" style="background: linear-gradient(135deg, #2C2C2C 0%, #1a1a1a 100%); color: #F5F5DC; border: 10px solid #8B5A2B;">
+     <h2 class="result-title incorrect" style="color: #F5F5DC; text-shadow: 2px 2px 4px rgba(198, 40, 40, 0.8);">TÍNH TOÁN SAI LẦM!</h2>
+     <div class="result-emoji" style="font-size: 5em;">
+      🍎💥📝
+     </div>
+     <div style="font-size: 3em; margin: 0.5em 0;">
+      🧮❌
+     </div>
+     <p class="result-message" style="background: rgba(139, 90, 43, 0.3); border: 3px solid #8B5A2B; color: #F5F5DC;">Con số đó không khớp với sổ sách.<br>
+       Hãy thử tính lại xem!</p>
+     <div class="explanation-box" style="background: rgba(139, 90, 43, 0.2); border-left: 5px solid #C62828; color: #F5F5DC;">
+      <h3 class="explanation-title" style="color: #F4E4C1;">📋 Gợi Ý:</h3>
+      <div class="explanation-text" style="color: #F5F5DC;"><strong>Hãy tính kỹ lại:</strong> <br><br>
+        ❓ Bà Jones đáng ra nhận được bao nhiêu nếu bán táo của mình với giá 2 quả/xu? <br><br>
+        ❓ Bà Jones thực tế nhận được bao nhiêu khi chia đôi doanh thu? <br><br>
+        ❓ Chênh lệch giữa hai số đó chính là khoản lỗ! <br><br><em style="color: #F4E4C1;">💡 Đáp án đúng lớn hơn bạn nghĩ đấy!</em>
+      </div>
+     </div>
+     <div class="action-buttons"><button class="action-button primary" onclick="tryAgain()">Thử Lại</button> <button class="action-button secondary" onclick="restartGame()">Về Đầu</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    let startTime;
+    let timerInterval;
+
+    const defaultConfig = {
+      game_title: "THE COVENT GARDEN",
+      subtitle: "Mathletica: Đố vui không thưởng #16",
+      start_button: "MỞ SẠP HÀNG",
+      merchant_label: "Thương nhân:",
+      question_title: "VỤ RẮC RỐI TÀI CHÍNH"
+    };
+
+    function showScreen(screenId) {
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(screen => screen.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function startGame() {
+      const merchantInput = document.getElementById('merchantInput').value.trim();
+      const merchantName = merchantInput || 'Bạn';
+      document.getElementById('merchantName').textContent = merchantName;
+      showScreen('gameScreen');
+      startTimer();
+    }
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const seconds = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${minutes}:${seconds}`;
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    }
+
+    function checkAnswer(option) {
+      stopTimer();
+      if (option === 'C') {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('finalTime').textContent = `${minutes}:${seconds}`;
+        showScreen('correctScreen');
+        createCoinRain();
+      } else {
+        showScreen('incorrectScreen');
+      }
+    }
+
+    function createCoinRain() {
+      const coinRain = document.getElementById('coinRain');
+      coinRain.innerHTML = '';
+      
+      const coinEmojis = ['💰', '🪙', '💵', '💴', '💶', '💷'];
+      
+      for (let i = 0; i < 30; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'falling-coin';
+        coin.textContent = coinEmojis[Math.floor(Math.random() * coinEmojis.length)];
+        coin.style.left = Math.random() * 100 + '%';
+        coin.style.animationDelay = Math.random() * 2 + 's';
+        coin.style.animationDuration = (2 + Math.random() * 2) + 's';
+        coinRain.appendChild(coin);
+      }
+      
+      setTimeout(() => {
+        coinRain.innerHTML = '';
+      }, 6000);
+    }
+
+    function tryAgain() {
+      showScreen('gameScreen');
+      startTimer();
+    }
+
+    function restartGame() {
+      showScreen('homeScreen');
+      stopTimer();
+      document.getElementById('timerDisplay').textContent = '00:00';
+    }
+
+    async function onConfigChange(config) {
+      const gameTitle = config.game_title || defaultConfig.game_title;
+      const subtitle = config.subtitle || defaultConfig.subtitle;
+      const startButton = config.start_button || defaultConfig.start_button;
+      const merchantLabel = config.merchant_label || defaultConfig.merchant_label;
+      const questionTitle = config.question_title || defaultConfig.question_title;
+
+      document.getElementById('gameTitle').textContent = gameTitle;
+      document.getElementById('subtitle').textContent = subtitle;
+      document.getElementById('startButton').textContent = startButton;
+      document.getElementById('merchantLabel').textContent = merchantLabel;
+      document.getElementById('questionTitle').textContent = questionTitle;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["subtitle", config.subtitle || defaultConfig.subtitle],
+          ["start_button", config.start_button || defaultConfig.start_button],
+          ["merchant_label", config.merchant_label || defaultConfig.merchant_label],
+          ["question_title", config.question_title || defaultConfig.question_title]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a5dd692d10afde6',t:'MTc2NDM3NDU2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
